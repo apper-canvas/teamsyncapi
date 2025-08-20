@@ -1,6 +1,14 @@
 import employeesData from '@/services/mockData/employees.json';
 
-let employees = [...employeesData];
+// Ensure all employees have emergency contact structure
+let employees = employeesData.map(employee => ({
+  ...employee,
+  emergencyContact: employee.emergencyContact || {
+    name: '',
+    phone: '',
+    relationship: ''
+  }
+}));
 
 const delay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 200));
 

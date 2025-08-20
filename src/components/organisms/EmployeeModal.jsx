@@ -6,7 +6,7 @@ import { employeeService } from '@/services/api/employeeService';
 import { toast } from 'react-toastify';
 
 const EmployeeModal = ({ isOpen, onClose, employee, departments, onSave }) => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
@@ -14,12 +14,17 @@ const EmployeeModal = ({ isOpen, onClose, employee, departments, onSave }) => {
     role: '',
     departmentId: '',
     startDate: '',
-    photoUrl: ''
+    photoUrl: '',
+    emergencyContact: {
+      name: '',
+      phone: '',
+      relationship: ''
+    }
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
+useEffect(() => {
     if (employee) {
       setFormData({
         firstName: employee.firstName || '',
@@ -29,7 +34,12 @@ const EmployeeModal = ({ isOpen, onClose, employee, departments, onSave }) => {
         role: employee.role || '',
         departmentId: employee.departmentId?.toString() || '',
         startDate: employee.startDate || '',
-        photoUrl: employee.photoUrl || ''
+        photoUrl: employee.photoUrl || '',
+        emergencyContact: {
+          name: employee.emergencyContact?.name || '',
+          phone: employee.emergencyContact?.phone || '',
+          relationship: employee.emergencyContact?.relationship || ''
+        }
       });
     } else {
       setFormData({
@@ -40,18 +50,35 @@ const EmployeeModal = ({ isOpen, onClose, employee, departments, onSave }) => {
         role: '',
         departmentId: '',
         startDate: '',
-        photoUrl: ''
+        photoUrl: '',
+        emergencyContact: {
+          name: '',
+          phone: '',
+          relationship: ''
+        }
       });
     }
     setErrors({});
   }, [employee, isOpen]);
 
-  const handleInputChange = (e) => {
+const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name.startsWith('emergencyContact.')) {
+      const field = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        emergencyContact: {
+          ...prev.emergencyContact,
+          [field]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
     
     // Clear error when user starts typing
     if (errors[name]) {
@@ -62,7 +89,7 @@ const EmployeeModal = ({ isOpen, onClose, employee, departments, onSave }) => {
     }
   };
 
-  const validateForm = () => {
+const validateForm = () => {
     const newErrors = {};
     
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
@@ -73,6 +100,11 @@ const EmployeeModal = ({ isOpen, onClose, employee, departments, onSave }) => {
     if (!formData.role.trim()) newErrors.role = 'Role is required';
     if (!formData.departmentId) newErrors.departmentId = 'Department is required';
     if (!formData.startDate) newErrors.startDate = 'Start date is required';
+    
+    // Emergency contact validation
+    if (!formData.emergencyContact.name.trim()) newErrors['emergencyContact.name'] = 'Emergency contact name is required';
+    if (!formData.emergencyContact.phone.trim()) newErrors['emergencyContact.phone'] = 'Emergency contact phone is required';
+    if (!formData.emergencyContact.relationship.trim()) newErrors['emergencyContact.relationship'] = 'Relationship is required';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,83 +167,128 @@ const EmployeeModal = ({ isOpen, onClose, employee, departments, onSave }) => {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+<form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  label="First Name"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  error={errors.firstName}
+                  required
+                />
+                <FormField
+                  label="Last Name"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  error={errors.lastName}
+                  required
+                />
+              </div>
+
               <FormField
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
+                label="Email"
+                name="email"
+                type="email"
+                value={formData.email}
                 onChange={handleInputChange}
-                error={errors.firstName}
+                error={errors.email}
                 required
               />
+
               <FormField
-                label="Last Name"
-                name="lastName"
-                value={formData.lastName}
+                label="Phone"
+                name="phone"
+                value={formData.phone}
                 onChange={handleInputChange}
-                error={errors.lastName}
+                error={errors.phone}
                 required
+              />
+
+              <FormField
+                label="Role"
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                error={errors.role}
+                required
+              />
+
+              <FormField
+                label="Department"
+                name="departmentId"
+                type="select"
+                value={formData.departmentId}
+                onChange={handleInputChange}
+                options={[{ value: '', label: 'Select a department' }, ...departmentOptions]}
+                error={errors.departmentId}
+                required
+              />
+
+              <FormField
+                label="Start Date"
+                name="startDate"
+                type="date"
+                value={formData.startDate}
+                onChange={handleInputChange}
+                error={errors.startDate}
+                required
+              />
+
+              <FormField
+                label="Photo URL"
+                name="photoUrl"
+                value={formData.photoUrl}
+                onChange={handleInputChange}
+                placeholder="https://example.com/photo.jpg"
               />
             </div>
 
-            <FormField
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              error={errors.email}
-              required
-            />
+            {/* Emergency Contact Information */}
+            <div className="space-y-4 border-t border-gray-200 pt-6">
+              <h3 className="text-lg font-medium text-gray-900">Emergency Contact</h3>
+              <FormField
+                label="Emergency Contact Name"
+                name="emergencyContact.name"
+                value={formData.emergencyContact.name}
+                onChange={handleInputChange}
+                error={errors['emergencyContact.name']}
+                required
+              />
 
-            <FormField
-              label="Phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              error={errors.phone}
-              required
-            />
-
-            <FormField
-              label="Role"
-              name="role"
-              value={formData.role}
-              onChange={handleInputChange}
-              error={errors.role}
-              required
-            />
-
-            <FormField
-              label="Department"
-              name="departmentId"
-              type="select"
-              value={formData.departmentId}
-              onChange={handleInputChange}
-              options={[{ value: '', label: 'Select a department' }, ...departmentOptions]}
-              error={errors.departmentId}
-              required
-            />
-
-            <FormField
-              label="Start Date"
-              name="startDate"
-              type="date"
-              value={formData.startDate}
-              onChange={handleInputChange}
-              error={errors.startDate}
-              required
-            />
-
-            <FormField
-              label="Photo URL"
-              name="photoUrl"
-              value={formData.photoUrl}
-              onChange={handleInputChange}
-              placeholder="https://example.com/photo.jpg"
-            />
-
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  label="Emergency Contact Phone"
+                  name="emergencyContact.phone"
+                  value={formData.emergencyContact.phone}
+                  onChange={handleInputChange}
+                  error={errors['emergencyContact.phone']}
+                  required
+                />
+                <FormField
+                  label="Relationship"
+                  name="emergencyContact.relationship"
+                  type="select"
+                  value={formData.emergencyContact.relationship}
+                  onChange={handleInputChange}
+                  options={[
+                    { value: '', label: 'Select relationship' },
+                    { value: 'Spouse', label: 'Spouse' },
+                    { value: 'Parent', label: 'Parent' },
+                    { value: 'Child', label: 'Child' },
+                    { value: 'Sibling', label: 'Sibling' },
+                    { value: 'Friend', label: 'Friend' },
+                    { value: 'Other', label: 'Other' }
+                  ]}
+                  error={errors['emergencyContact.relationship']}
+                  required
+                />
+              </div>
+            </div>
             <div className="flex space-x-3 pt-4">
               <Button
                 type="button"

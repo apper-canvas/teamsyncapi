@@ -84,7 +84,7 @@
     "photoUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face"
   },
   {
-    "Id": 8,
+"Id": 8,
     "firstName": "James",
     "lastName": "Brown",
     "email": "james.brown@company.com",
@@ -93,6 +93,11 @@
     "departmentId": 1,
     "startDate": "2022-12-01",
     "status": "active",
-    "photoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face"
+    "photoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face",
+    "emergencyContact": {
+      "name": "Sarah Brown",
+      "phone": "+1 (555) 123-9876",
+      "relationship": "Spouse"
+    }
   }
 ]
