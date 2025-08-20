@@ -1,5 +1,4 @@
-import React from "react";
-import Error from "@/components/ui/Error";
+// Employee service for data operations
 // Employee Service with ApperClient Integration
 const tableName = 'employee_c';
 
@@ -377,12 +376,11 @@ export const employeeService = {
       }));
     } catch (error) {
       if (error?.response?.data?.message) {
-        console.error("Error fetching employees by department:", error?.response?.data?.message);
+console.error("Error fetching employees by department:", error?.response?.data?.message);
       } else {
         console.error(error);
       }
       return [];
-return [];
     }
   }
 };
